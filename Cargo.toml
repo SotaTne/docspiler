@@ -1,0 +1,15 @@
+[workspace]
+
+resolver = "3"
+
+members = [
+    "crate/docspiler_ast",
+    "crate/docspiler_ir",
+    "crate/funcs",
+    "crate/pdf_render",
+]
+
+[workspace.dependencies]
+rustybuzz = "0.20"
+krilla="0.5"
+unicode-linebreak = "0.1"
