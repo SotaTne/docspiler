@@ -7,6 +7,15 @@ mod section_2_1_1_top_level_math_test;
 #[path = "mathml/section_2_1_6_displaystyle_scriptlevel_test.rs"]
 mod section_2_1_6_displaystyle_scriptlevel_test;
 
+#[path = "mathml/section_2_1_attribute_value_interpretation_test.rs"]
+mod section_2_1_attribute_value_interpretation_test;
+
+#[path = "mathml/section_2_1_rendering_elements_coverage_test.rs"]
+mod section_2_1_rendering_elements_coverage_test;
+
+#[path = "mathml/section_2_1_rendering_attributes_coverage_test.rs"]
+mod section_2_1_rendering_attributes_coverage_test;
+
 #[path = "mathml/section_3_2_1_mtext_test.rs"]
 mod section_3_2_1_mtext_test;
 
@@ -21,6 +30,24 @@ mod section_3_2_4_mo_test;
 
 #[path = "mathml/appendix_b_operator_dictionary_test.rs"]
 mod appendix_b_operator_dictionary_test;
+
+#[path = "mathml/appendix_b_native_symbol_support_test.rs"]
+mod appendix_b_native_symbol_support_test;
+
+#[path = "mathml/appendix_b_string_operator_group_test.rs"]
+mod appendix_b_string_operator_group_test;
+
+#[path = "mathml/appendix_b3_combining_character_equivalences_test.rs"]
+mod appendix_b3_combining_character_equivalences_test;
+
+#[path = "mathml/appendix_b4_unicode_based_glyph_assemblies_test.rs"]
+mod appendix_b4_unicode_based_glyph_assemblies_test;
+
+#[path = "mathml/appendix_c1_italic_mappings_test.rs"]
+mod appendix_c1_italic_mappings_test;
+
+#[path = "mathml/appendix_tables_full_support_test.rs"]
+mod appendix_tables_full_support_test;
 
 #[path = "mathml/section_3_2_5_mspace_test.rs"]
 mod section_3_2_5_mspace_test;

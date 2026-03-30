@@ -1,282 +1,12 @@
 use quick_xml::Reader;
 use quick_xml::events::{BytesStart, Event};
-use serde::{Deserialize, Serialize};
-use std::fmt;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct XmlDocument {
-    pub root: XmlElement,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct XmlElement {
-    pub name: MathMlElementName,
-    pub attributes: Vec<XmlAttribute>,
-    pub children: Vec<XmlNode>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct XmlAttribute {
-    pub name: MathMlAttributeName,
-    pub value: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum XmlNode {
-    Element(XmlElement),
-    Text(XmlText),
-    Cdata(String),
-    Comment(String),
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct XmlText {
-    pub raw: String,
-    pub tokens: Vec<TextToken>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum TextToken {
-    Symbol(MathMlSymbol),
-    Char(char),
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum MathMlElementName {
-    Math,
-    Mi,
-    Mn,
-    Mo,
-    Mtext,
-    Mspace,
-    Ms,
-    Mrow,
-    Mfrac,
-    Msqrt,
-    Mroot,
-    Mstyle,
-    Merror,
-    Mpadded,
-    Mphantom,
-    Msub,
-    Msup,
-    Msubsup,
-    Munder,
-    Mover,
-    Munderover,
-    Mmultiscripts,
-    Mprescripts,
-    Mtable,
-    Mtr,
-    Mtd,
-    Semantics,
-    Annotation,
-    AnnotationXml,
-    Unknown(String),
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum MathMlAttributeName {
-    Display,
-    DisplayStyle,
-    ScriptLevel,
-    ScriptSizeMultiplier,
-    ScriptMinSize,
-    MathVariant,
-    MathSize,
-    MathColor,
-    MathBackground,
-    Dir,
-    Form,
-    Fence,
-    Separator,
-    Stretchy,
-    Symmetric,
-    LargeOp,
-    MovableLimits,
-    Accent,
-    AccentUnder,
-    LineBreak,
-    LineBreakStyle,
-    LSpace,
-    RSpace,
-    MinSize,
-    MaxSize,
-    Width,
-    Height,
-    Depth,
-    LineThickness,
-    NumAlign,
-    DenomAlign,
-    Bevelled,
-    Open,
-    Close,
-    Separators,
-    RowAlign,
-    ColumnAlign,
-    GroupAlign,
-    Align,
-    ColumnSpacing,
-    RowSpacing,
-    ColumnLines,
-    RowLines,
-    Frame,
-    FrameSpacing,
-    EqualRows,
-    EqualColumns,
-    Side,
-    MinLabelSpacing,
-    RowSpan,
-    ColumnSpan,
-    Encoding,
-    DefinitionUrl,
-    Src,
-    AltText,
-    AltImg,
-    AltImgWidth,
-    AltImgHeight,
-    Unknown(String),
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum MathMlSymbol {
-    Plus,
-    HyphenMinus,
-    MinusSign,
-    PlusMinus,
-    MinusPlus,
-    MultiplicationSign,
-    DivisionSign,
-    Asterisk,
-    Equals,
-    NotEquals,
-    LessThan,
-    GreaterThan,
-    LessThanOrEqual,
-    GreaterThanOrEqual,
-    MuchLessThan,
-    MuchGreaterThan,
-    LeftParenthesis,
-    RightParenthesis,
-    LeftSquareBracket,
-    RightSquareBracket,
-    LeftCurlyBrace,
-    RightCurlyBrace,
-    VerticalBar,
-    DoubleVerticalBar,
-    LeftAngleBracket,
-    RightAngleBracket,
-    Comma,
-    Dot,
-    MiddleDot,
-    Colon,
-    Semicolon,
-    Prime,
-    DoublePrime,
-    TriplePrime,
-    Summation,
-    Product,
-    Coproduct,
-    Integral,
-    DoubleIntegral,
-    TripleIntegral,
-    PartialDifferential,
-    Nabla,
-    Infinity,
-    ProportionalTo,
-    ElementOf,
-    NotElementOf,
-    ContainsAsMember,
-    SubsetOf,
-    SupersetOf,
-    SubsetOfOrEqualTo,
-    SupersetOfOrEqualTo,
-    Union,
-    Intersection,
-    LogicalAnd,
-    LogicalOr,
-    ForAll,
-    Exists,
-    Therefore,
-    Because,
-    LeftArrow,
-    RightArrow,
-    LeftRightArrow,
-    UpArrow,
-    DownArrow,
-    Implies,
-    Equivalent,
-    InvisibleTimes,
-    InvisibleComma,
-    ApplyFunction,
-}
-
-#[derive(Debug)]
-pub enum ParseXmlError {
-    Xml(quick_xml::Error),
-    Attr(quick_xml::events::attributes::AttrError),
-    Encoding(quick_xml::encoding::EncodingError),
-    Escape(quick_xml::escape::EscapeError),
-    Utf8(std::str::Utf8Error),
-    NoRootElement,
-    MultipleRootElements,
-    MismatchedEndTag {
-        expected: MathMlElementName,
-        found: MathMlElementName,
-    },
-}
-
-impl fmt::Display for ParseXmlError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Xml(err) => write!(f, "xml parse error: {err}"),
-            Self::Attr(err) => write!(f, "xml attribute error: {err}"),
-            Self::Encoding(err) => write!(f, "xml encoding error: {err}"),
-            Self::Escape(err) => write!(f, "xml escape error: {err}"),
-            Self::Utf8(err) => write!(f, "xml utf-8 error: {err}"),
-            Self::NoRootElement => write!(f, "no root element found"),
-            Self::MultipleRootElements => write!(f, "multiple root elements found"),
-            Self::MismatchedEndTag { expected, found } => {
-                write!(
-                    f,
-                    "mismatched end tag: expected {expected:?}, found {found:?}"
-                )
-            }
-        }
-    }
-}
-
-impl std::error::Error for ParseXmlError {}
-
-impl From<quick_xml::Error> for ParseXmlError {
-    fn from(value: quick_xml::Error) -> Self {
-        Self::Xml(value)
-    }
-}
-
-impl From<quick_xml::events::attributes::AttrError> for ParseXmlError {
-    fn from(value: quick_xml::events::attributes::AttrError) -> Self {
-        Self::Attr(value)
-    }
-}
-
-impl From<quick_xml::encoding::EncodingError> for ParseXmlError {
-    fn from(value: quick_xml::encoding::EncodingError) -> Self {
-        Self::Encoding(value)
-    }
-}
-
-impl From<quick_xml::escape::EscapeError> for ParseXmlError {
-    fn from(value: quick_xml::escape::EscapeError) -> Self {
-        Self::Escape(value)
-    }
-}
-
-impl From<std::str::Utf8Error> for ParseXmlError {
-    fn from(value: std::str::Utf8Error) -> Self {
-        Self::Utf8(value)
-    }
-}
+pub use crate::mathml_model::{
+    AccentPosition, CombiningCharacterEquivalence, GlyphAssembly, GlyphAssemblyDirection,
+    MathMlAttributeName, MathMlElementName, MathMlSymbol, OperatorDictionaryEntry, OperatorForm,
+    OperatorProperty, OperatorStretchAxis, ParseXmlError, TextToken, XmlAttribute, XmlDocument,
+    XmlElement, XmlNode, XmlText,
+};
 
 pub fn parse_mathml_xml(xml: &str) -> Result<XmlDocument, ParseXmlError> {
     let mut reader = Reader::from_str(xml);
@@ -310,10 +40,7 @@ pub fn parse_mathml_xml(xml: &str) -> Result<XmlDocument, ParseXmlError> {
                 }
             }
             Event::Text(text) => {
-                let value = text.xml_content()?.into_owned();
-                if !value.is_empty() {
-                    push_node(&mut stack, &mut root, XmlNode::Text(parse_xml_text(value)))?;
-                }
+                push_text_segment(&mut stack, &mut root, text.xml_content()?.into_owned())?
             }
             Event::CData(text) => {
                 let value = text.decode()?.into_owned();
@@ -323,7 +50,11 @@ pub fn parse_mathml_xml(xml: &str) -> Result<XmlDocument, ParseXmlError> {
                 let value = text.decode()?.into_owned();
                 push_node(&mut stack, &mut root, XmlNode::Comment(value))?;
             }
-            Event::Decl(_) | Event::PI(_) | Event::DocType(_) | Event::GeneralRef(_) => {}
+            Event::GeneralRef(reference) => {
+                let value = resolve_general_reference(&reference)?;
+                push_text_segment(&mut stack, &mut root, value)?;
+            }
+            Event::Decl(_) | Event::PI(_) | Event::DocType(_) => {}
             Event::Eof => break,
         }
     }
@@ -396,14 +127,88 @@ fn push_node(
     }
 }
 
+fn push_text_segment(
+    stack: &mut [XmlElement],
+    root: &mut Option<XmlElement>,
+    segment: String,
+) -> Result<(), ParseXmlError> {
+    if segment.is_empty() {
+        return Ok(());
+    }
+
+    if let Some(parent) = stack.last_mut() {
+        if let Some(XmlNode::Text(existing)) = parent.children.last_mut() {
+            existing.raw.push_str(&segment);
+            *existing = parse_xml_text(existing.raw.clone());
+        } else {
+            parent.children.push(XmlNode::Text(parse_xml_text(segment)));
+        }
+        return Ok(());
+    }
+
+    if segment.trim().is_empty() {
+        Ok(())
+    } else {
+        match root {
+            Some(_) => Err(ParseXmlError::MultipleRootElements),
+            None => Err(ParseXmlError::NoRootElement),
+        }
+    }
+}
+
+fn resolve_general_reference(
+    reference: &quick_xml::events::BytesRef<'_>,
+) -> Result<String, ParseXmlError> {
+    let decoded = reference.decode()?.into_owned();
+
+    if let Some(hex) = decoded
+        .strip_prefix("#x")
+        .or_else(|| decoded.strip_prefix("#X"))
+    {
+        let codepoint = u32::from_str_radix(hex, 16)
+            .ok()
+            .and_then(char::from_u32)
+            .ok_or_else(|| ParseXmlError::InvalidReference(decoded.clone()))?;
+        return Ok(codepoint.to_string());
+    }
+
+    if let Some(decimal) = decoded.strip_prefix('#') {
+        let codepoint = decimal
+            .parse::<u32>()
+            .ok()
+            .and_then(char::from_u32)
+            .ok_or_else(|| ParseXmlError::InvalidReference(decoded.clone()))?;
+        return Ok(codepoint.to_string());
+    }
+
+    match decoded.as_str() {
+        "lt" => Ok("<".to_string()),
+        "gt" => Ok(">".to_string()),
+        "amp" => Ok("&".to_string()),
+        "apos" => Ok("'".to_string()),
+        "quot" => Ok("\"".to_string()),
+        _ => Err(ParseXmlError::InvalidReference(decoded)),
+    }
+}
+
 fn parse_xml_text(raw: String) -> XmlText {
-    let tokens = raw
-        .chars()
-        .map(|ch| match MathMlSymbol::from_char(ch) {
+    let chars: Vec<char> = raw.chars().collect();
+    let mut tokens = Vec::new();
+    let mut i = 0;
+
+    while i < chars.len() {
+        if let Some((symbol, consumed)) = MathMlSymbol::from_char_sequence(&chars[i..]) {
+            tokens.push(TextToken::Symbol(symbol));
+            i += consumed;
+            continue;
+        }
+
+        tokens.push(match MathMlSymbol::from_char(chars[i]) {
             Some(symbol) => TextToken::Symbol(symbol),
-            None => TextToken::Char(ch),
-        })
-        .collect();
+            None => TextToken::Char(chars[i]),
+        });
+        i += 1;
+    }
 
     XmlText { raw, tokens }
 }
@@ -512,8 +317,381 @@ impl MathMlAttributeName {
 }
 
 impl MathMlSymbol {
-    fn from_char(ch: char) -> Option<Self> {
+    pub fn operator_dictionary_entry(self, form: OperatorForm) -> Option<OperatorDictionaryEntry> {
+        let entry = match (self, form) {
+            (Self::BangEquals, OperatorForm::Infix)
+            | (Self::LessThanOrEqualAscii, OperatorForm::Infix)
+            | (Self::ArrowAscii, OperatorForm::Infix)
+            | (Self::DoubleVerticalBarAscii, OperatorForm::Infix)
+            | (Self::DoubleAmpersand, OperatorForm::Infix)
+            | (Self::DoubleEquals, OperatorForm::Infix)
+            | (Self::ColonEquals, OperatorForm::Infix)
+            | (Self::DoubleAsterisk, OperatorForm::Infix)
+            | (Self::DoublePlus, OperatorForm::Postfix)
+            | (Self::DoubleHyphen, OperatorForm::Postfix)
+            | (Self::Plus, OperatorForm::Infix)
+            | (Self::HyphenMinus, OperatorForm::Infix)
+            | (Self::MinusSign, OperatorForm::Infix)
+            | (Self::PlusMinus, OperatorForm::Infix)
+            | (Self::DivisionSign, OperatorForm::Infix)
+            | (Self::Union, OperatorForm::Infix)
+            | (Self::Intersection, OperatorForm::Infix)
+            | (Self::LogicalAnd, OperatorForm::Infix)
+            | (Self::LogicalOr, OperatorForm::Infix)
+            | (Self::MiddleDot, OperatorForm::Infix)
+            | (Self::MultiplicationSign, OperatorForm::Infix) => OperatorDictionaryEntry {
+                content: self,
+                stretch_axis: OperatorStretchAxis::Block,
+                form,
+                lspace_em: 0.222_222_22,
+                rspace_em: 0.222_222_22,
+                properties: vec![],
+            },
+            (Self::LessThan, OperatorForm::Infix)
+            | (Self::Equals, OperatorForm::Infix)
+            | (Self::GreaterThan, OperatorForm::Infix)
+            | (Self::VerticalBar, OperatorForm::Infix)
+            | (Self::ElementOf, OperatorForm::Infix)
+            | (Self::NotElementOf, OperatorForm::Infix)
+            | (Self::ContainsAsMember, OperatorForm::Infix)
+            | (Self::ProportionalTo, OperatorForm::Infix)
+            | (Self::SubsetOf, OperatorForm::Infix)
+            | (Self::SupersetOf, OperatorForm::Infix)
+            | (Self::SubsetOfOrEqualTo, OperatorForm::Infix)
+            | (Self::SupersetOfOrEqualTo, OperatorForm::Infix)
+            | (Self::NotEquals, OperatorForm::Infix)
+            | (Self::LessThanOrEqual, OperatorForm::Infix)
+            | (Self::GreaterThanOrEqual, OperatorForm::Infix)
+            | (Self::MuchLessThan, OperatorForm::Infix)
+            | (Self::MuchGreaterThan, OperatorForm::Infix) => OperatorDictionaryEntry {
+                content: self,
+                stretch_axis: if matches!(self, Self::Equals) {
+                    OperatorStretchAxis::Inline
+                } else {
+                    OperatorStretchAxis::Block
+                },
+                form,
+                lspace_em: 0.277_777_8,
+                rspace_em: 0.277_777_8,
+                properties: if matches!(self, Self::VerticalBar) {
+                    vec![OperatorProperty::Fence]
+                } else {
+                    vec![]
+                },
+            },
+            (Self::LeftArrow, OperatorForm::Infix)
+            | (Self::RightArrow, OperatorForm::Infix)
+            | (Self::LeftRightArrow, OperatorForm::Infix)
+            | (Self::Implies, OperatorForm::Infix)
+            | (Self::Equivalent, OperatorForm::Infix)
+            | (Self::LongLeftArrow, OperatorForm::Infix)
+            | (Self::LongRightArrow, OperatorForm::Infix)
+            | (Self::LongLeftRightArrow, OperatorForm::Infix) => OperatorDictionaryEntry {
+                content: self,
+                stretch_axis: OperatorStretchAxis::Inline,
+                form,
+                lspace_em: 0.277_777_8,
+                rspace_em: 0.277_777_8,
+                properties: vec![OperatorProperty::Stretchy],
+            },
+            (Self::ForAll, OperatorForm::Prefix)
+            | (Self::Exists, OperatorForm::Prefix)
+            | (Self::Nabla, OperatorForm::Prefix) => OperatorDictionaryEntry {
+                content: self,
+                stretch_axis: OperatorStretchAxis::Block,
+                form,
+                lspace_em: 0.0,
+                rspace_em: 0.0,
+                properties: vec![],
+            },
+            (Self::LeftParenthesis, OperatorForm::Prefix)
+            | (Self::LeftSquareBracket, OperatorForm::Prefix)
+            | (Self::LeftCurlyBrace, OperatorForm::Prefix)
+            | (Self::VerticalBar, OperatorForm::Prefix)
+            | (Self::DoubleVerticalBar, OperatorForm::Prefix)
+            | (Self::LeftCeiling, OperatorForm::Prefix)
+            | (Self::LeftFloor, OperatorForm::Prefix)
+            | (Self::LeftAngleBracket, OperatorForm::Prefix)
+            | (Self::LeftDoubleBracket, OperatorForm::Prefix)
+            | (Self::LeftSingleQuotationMark, OperatorForm::Prefix)
+            | (Self::LeftDoubleQuotationMark, OperatorForm::Prefix) => OperatorDictionaryEntry {
+                content: self,
+                stretch_axis: OperatorStretchAxis::Block,
+                form,
+                lspace_em: 0.0,
+                rspace_em: 0.0,
+                properties: vec![
+                    OperatorProperty::Stretchy,
+                    OperatorProperty::Symmetric,
+                    OperatorProperty::Fence,
+                ],
+            },
+            (Self::RightParenthesis, OperatorForm::Postfix)
+            | (Self::RightSquareBracket, OperatorForm::Postfix)
+            | (Self::RightCurlyBrace, OperatorForm::Postfix)
+            | (Self::VerticalBar, OperatorForm::Postfix)
+            | (Self::DoubleVerticalBar, OperatorForm::Postfix)
+            | (Self::RightCeiling, OperatorForm::Postfix)
+            | (Self::RightFloor, OperatorForm::Postfix)
+            | (Self::RightAngleBracket, OperatorForm::Postfix)
+            | (Self::RightDoubleBracket, OperatorForm::Postfix)
+            | (Self::RightSingleQuotationMark, OperatorForm::Postfix)
+            | (Self::RightDoubleQuotationMark, OperatorForm::Postfix) => OperatorDictionaryEntry {
+                content: self,
+                stretch_axis: OperatorStretchAxis::Block,
+                form,
+                lspace_em: 0.0,
+                rspace_em: 0.0,
+                properties: vec![
+                    OperatorProperty::Stretchy,
+                    OperatorProperty::Symmetric,
+                    OperatorProperty::Fence,
+                ],
+            },
+            (Self::Integral, OperatorForm::Prefix)
+            | (Self::DoubleIntegral, OperatorForm::Prefix)
+            | (Self::TripleIntegral, OperatorForm::Prefix) => OperatorDictionaryEntry {
+                content: self,
+                stretch_axis: OperatorStretchAxis::Block,
+                form,
+                lspace_em: 0.166_666_67,
+                rspace_em: 0.166_666_67,
+                properties: vec![OperatorProperty::LargeOp, OperatorProperty::Symmetric],
+            },
+            (Self::Product, OperatorForm::Prefix)
+            | (Self::Coproduct, OperatorForm::Prefix)
+            | (Self::Summation, OperatorForm::Prefix) => OperatorDictionaryEntry {
+                content: self,
+                stretch_axis: OperatorStretchAxis::Block,
+                form,
+                lspace_em: 0.166_666_67,
+                rspace_em: 0.166_666_67,
+                properties: vec![
+                    OperatorProperty::LargeOp,
+                    OperatorProperty::Symmetric,
+                    OperatorProperty::MovableLimits,
+                ],
+            },
+            (Self::InvisibleTimes, OperatorForm::Infix)
+            | (Self::ApplyFunction, OperatorForm::Infix)
+            | (Self::Solidus, OperatorForm::Infix)
+            | (Self::ReverseSolidus, OperatorForm::Infix)
+            | (Self::LowLine, OperatorForm::Infix)
+            | (Self::GreekCapitalDelta, OperatorForm::Infix) => OperatorDictionaryEntry {
+                content: self,
+                stretch_axis: if matches!(self, Self::LowLine) {
+                    OperatorStretchAxis::Inline
+                } else {
+                    OperatorStretchAxis::Block
+                },
+                form,
+                lspace_em: 0.0,
+                rspace_em: 0.0,
+                properties: vec![],
+            },
+            (Self::InvisibleComma, OperatorForm::Infix) => OperatorDictionaryEntry {
+                content: self,
+                stretch_axis: OperatorStretchAxis::Block,
+                form,
+                lspace_em: 0.0,
+                rspace_em: 0.0,
+                properties: vec![OperatorProperty::Separator],
+            },
+            (Self::Comma, OperatorForm::Infix) | (Self::Semicolon, OperatorForm::Infix) => {
+                OperatorDictionaryEntry {
+                    content: self,
+                    stretch_axis: OperatorStretchAxis::Block,
+                    form,
+                    lspace_em: 0.0,
+                    rspace_em: 0.166_666_67,
+                    properties: vec![OperatorProperty::Separator],
+                }
+            }
+            (Self::Colon, OperatorForm::Infix) => OperatorDictionaryEntry {
+                content: self,
+                stretch_axis: OperatorStretchAxis::Block,
+                form,
+                lspace_em: 0.0,
+                rspace_em: 0.166_666_67,
+                properties: vec![],
+            },
+            (Self::SquareRoot, OperatorForm::Prefix)
+            | (Self::CubeRoot, OperatorForm::Prefix)
+            | (Self::FourthRoot, OperatorForm::Prefix)
+            | (Self::DifferentialD, OperatorForm::Prefix)
+            | (Self::ExponentialE, OperatorForm::Prefix)
+            | (Self::PartialDifferential, OperatorForm::Prefix) => OperatorDictionaryEntry {
+                content: self,
+                stretch_axis: OperatorStretchAxis::Block,
+                form,
+                lspace_em: 0.166_666_67,
+                rspace_em: 0.0,
+                properties: vec![],
+            },
+            (Self::CircumflexAccent, OperatorForm::Postfix)
+            | (Self::LowLine, OperatorForm::Postfix)
+            | (Self::Tilde, OperatorForm::Postfix)
+            | (Self::Macron, OperatorForm::Postfix)
+            | (Self::ModifierLetterCircumflexAccent, OperatorForm::Postfix)
+            | (Self::Caron, OperatorForm::Postfix)
+            | (Self::Overline, OperatorForm::Postfix) => OperatorDictionaryEntry {
+                content: self,
+                stretch_axis: OperatorStretchAxis::Inline,
+                form,
+                lspace_em: 0.0,
+                rspace_em: 0.0,
+                properties: vec![OperatorProperty::Stretchy],
+            },
+            _ => return None,
+        };
+
+        Some(entry)
+    }
+
+    pub fn combining_character_equivalence(self) -> Option<CombiningCharacterEquivalence> {
+        let (base, position, combining) = match self {
+            Self::Plus => (Self::Plus, AccentPosition::Below, '\u{031F}'),
+            Self::HyphenMinus => (Self::HyphenMinus, AccentPosition::Above, '\u{0305}'),
+            Self::LowLine => (Self::LowLine, AccentPosition::Below, '\u{0332}'),
+            Self::Tilde => (Self::Tilde, AccentPosition::Above, '\u{0303}'),
+            Self::Macron => (Self::Macron, AccentPosition::Above, '\u{0304}'),
+            Self::AcuteAccent => (Self::AcuteAccent, AccentPosition::Above, '\u{0301}'),
+            Self::Diaeresis => (Self::Diaeresis, AccentPosition::Above, '\u{0308}'),
+            Self::Breve => (Self::Breve, AccentPosition::Above, '\u{0306}'),
+            Self::DotAbove => (Self::DotAbove, AccentPosition::Above, '\u{0307}'),
+            Self::Ogonek => (Self::Ogonek, AccentPosition::Below, '\u{0328}'),
+            Self::LeftArrow => (Self::LeftArrow, AccentPosition::Above, '\u{20D6}'),
+            Self::RightArrow => (Self::RightArrow, AccentPosition::Above, '\u{20D7}'),
+            Self::LongRightArrow => (Self::LongRightArrow, AccentPosition::Above, '\u{20D7}'),
+            _ => return None,
+        };
+
+        Some(CombiningCharacterEquivalence {
+            base,
+            position,
+            combining,
+        })
+    }
+
+    pub fn glyph_assembly(self) -> Option<GlyphAssembly> {
+        let assembly = match self {
+            Self::LeftParenthesis => GlyphAssembly {
+                base: self,
+                direction: GlyphAssemblyDirection::Vertical,
+                extender: MathMlSymbol::VerticalBar,
+                bottom_or_left: MathMlSymbol::LeftFloor,
+                middle: None,
+                top_or_right: Some(MathMlSymbol::LeftCeiling),
+            },
+            Self::RightParenthesis => GlyphAssembly {
+                base: self,
+                direction: GlyphAssemblyDirection::Vertical,
+                extender: MathMlSymbol::VerticalBar,
+                bottom_or_left: MathMlSymbol::RightFloor,
+                middle: None,
+                top_or_right: Some(MathMlSymbol::RightCeiling),
+            },
+            Self::LeftArrow => GlyphAssembly {
+                base: self,
+                direction: GlyphAssemblyDirection::Horizontal,
+                extender: MathMlSymbol::Overline,
+                bottom_or_left: MathMlSymbol::LeftArrow,
+                middle: None,
+                top_or_right: Some(MathMlSymbol::Overline),
+            },
+            Self::RightArrow => GlyphAssembly {
+                base: self,
+                direction: GlyphAssemblyDirection::Horizontal,
+                extender: MathMlSymbol::Overline,
+                bottom_or_left: MathMlSymbol::Overline,
+                middle: None,
+                top_or_right: Some(MathMlSymbol::RightArrow),
+            },
+            Self::LeftRightArrow => GlyphAssembly {
+                base: self,
+                direction: GlyphAssemblyDirection::Horizontal,
+                extender: MathMlSymbol::Overline,
+                bottom_or_left: MathMlSymbol::LeftArrow,
+                middle: None,
+                top_or_right: Some(MathMlSymbol::RightArrow),
+            },
+            Self::LeftSquareBracket => GlyphAssembly {
+                base: self,
+                direction: GlyphAssemblyDirection::Vertical,
+                extender: MathMlSymbol::VerticalBar,
+                bottom_or_left: MathMlSymbol::LeftFloor,
+                middle: None,
+                top_or_right: Some(MathMlSymbol::LeftCeiling),
+            },
+            Self::RightSquareBracket => GlyphAssembly {
+                base: self,
+                direction: GlyphAssemblyDirection::Vertical,
+                extender: MathMlSymbol::VerticalBar,
+                bottom_or_left: MathMlSymbol::RightFloor,
+                middle: None,
+                top_or_right: Some(MathMlSymbol::RightCeiling),
+            },
+            _ => return None,
+        };
+
+        Some(assembly)
+    }
+
+    pub fn mathematical_italic_variant(self) -> Option<Self> {
+        match self {
+            Self::GreekCapitalDelta => Some(Self::MathematicalItalicCapitalDelta),
+            Self::GreekSmallAlpha => Some(Self::MathematicalItalicSmallAlpha),
+            _ => None,
+        }
+    }
+
+    pub fn from_char_sequence(chars: &[char]) -> Option<(Self, usize)> {
+        const MULTI_CHAR_SYMBOLS: [(&str, MathMlSymbol); 18] = [
+            ("!=", MathMlSymbol::BangEquals),
+            ("*=", MathMlSymbol::AsteriskEquals),
+            ("+=", MathMlSymbol::PlusEquals),
+            ("-=", MathMlSymbol::MinusEquals),
+            ("->", MathMlSymbol::ArrowAscii),
+            ("//", MathMlSymbol::DoubleSlash),
+            ("/=", MathMlSymbol::SlashEquals),
+            (":=", MathMlSymbol::ColonEquals),
+            ("<=", MathMlSymbol::LessThanOrEqualAscii),
+            ("==", MathMlSymbol::DoubleEquals),
+            (">=", MathMlSymbol::GreaterThanOrEqualAscii),
+            ("||", MathMlSymbol::DoubleVerticalBarAscii),
+            ("&&", MathMlSymbol::DoubleAmpersand),
+            ("**", MathMlSymbol::DoubleAsterisk),
+            ("<>", MathMlSymbol::LessThanGreaterThanAscii),
+            ("!!", MathMlSymbol::DoubleBang),
+            ("++", MathMlSymbol::DoublePlus),
+            ("--", MathMlSymbol::DoubleHyphen),
+        ];
+
+        for (pattern, symbol) in MULTI_CHAR_SYMBOLS {
+            let pattern_chars: Vec<char> = pattern.chars().collect();
+            if chars.starts_with(&pattern_chars) {
+                return Some((symbol, pattern_chars.len()));
+            }
+        }
+
+        None
+    }
+
+    pub fn from_char(ch: char) -> Option<Self> {
         match ch {
+            '!' => Some(Self::ExclamationMark),
+            '%' => Some(Self::PercentSign),
+            '&' => Some(Self::Ampersand),
+            '\'' => Some(Self::Apostrophe),
+            '"' => Some(Self::QuotationMark),
+            '`' => Some(Self::GraveAccent),
+            '^' => Some(Self::CircumflexAccent),
+            '_' => Some(Self::LowLine),
+            '~' => Some(Self::Tilde),
+            '/' => Some(Self::Solidus),
+            '\\' => Some(Self::ReverseSolidus),
+            '@' => Some(Self::AtSign),
+            '?' => Some(Self::QuestionMark),
             '+' => Some(Self::Plus),
             '-' => Some(Self::HyphenMinus),
             '−' => Some(Self::MinusSign),
@@ -540,6 +718,10 @@ impl MathMlSymbol {
             '‖' => Some(Self::DoubleVerticalBar),
             '⟨' => Some(Self::LeftAngleBracket),
             '⟩' => Some(Self::RightAngleBracket),
+            '‘' => Some(Self::LeftSingleQuotationMark),
+            '’' => Some(Self::RightSingleQuotationMark),
+            '“' => Some(Self::LeftDoubleQuotationMark),
+            '”' => Some(Self::RightDoubleQuotationMark),
             ',' => Some(Self::Comma),
             '.' => Some(Self::Dot),
             '·' => Some(Self::MiddleDot),
@@ -580,9 +762,48 @@ impl MathMlSymbol {
             '↓' => Some(Self::DownArrow),
             '⇒' => Some(Self::Implies),
             '⇔' => Some(Self::Equivalent),
+            '\u{2061}' => Some(Self::ApplyFunction),
             '\u{2062}' => Some(Self::InvisibleTimes),
             '\u{2063}' => Some(Self::InvisibleComma),
-            '\u{2061}' => Some(Self::ApplyFunction),
+            '\u{2064}' => Some(Self::InvisibleNoBreak),
+            'ⅅ' => Some(Self::DifferentialD),
+            'ⅆ' => Some(Self::ExponentialE),
+            '√' => Some(Self::SquareRoot),
+            '∛' => Some(Self::CubeRoot),
+            '∜' => Some(Self::FourthRoot),
+            '°' => Some(Self::DegreeSign),
+            '²' => Some(Self::SuperscriptTwo),
+            '³' => Some(Self::SuperscriptThree),
+            '¹' => Some(Self::SuperscriptOne),
+            '¯' => Some(Self::Macron),
+            '‾' => Some(Self::Overline),
+            '¨' => Some(Self::Diaeresis),
+            '´' => Some(Self::AcuteAccent),
+            '¸' => Some(Self::Cedilla),
+            '˚' => Some(Self::RingAbove),
+            '˝' => Some(Self::DoubleAcuteAccent),
+            'ˇ' => Some(Self::Caron),
+            'ˊ' => Some(Self::AcuteAccent),
+            'ˋ' => Some(Self::GraveAccent),
+            '˷' => Some(Self::Tilde),
+            '˛' => Some(Self::Ogonek),
+            'ˆ' => Some(Self::ModifierLetterCircumflexAccent),
+            '⌈' => Some(Self::LeftCeiling),
+            '⌉' => Some(Self::RightCeiling),
+            '⌊' => Some(Self::LeftFloor),
+            '⌋' => Some(Self::RightFloor),
+            '⟦' => Some(Self::LeftDoubleBracket),
+            '⟧' => Some(Self::RightDoubleBracket),
+            '⟵' => Some(Self::LongLeftArrow),
+            '⟶' => Some(Self::LongRightArrow),
+            '⟷' => Some(Self::LongLeftRightArrow),
+            '∆' | 'Δ' => Some(Self::GreekCapitalDelta),
+            'Σ' => Some(Self::GreekCapitalSigma),
+            'α' => Some(Self::GreekSmallAlpha),
+            '𝛥' => Some(Self::MathematicalItalicCapitalDelta),
+            '𝐴' => Some(Self::MathematicalItalicCapitalA),
+            'ℎ' => Some(Self::MathematicalItalicSmallH),
+            '𝛼' => Some(Self::MathematicalItalicSmallAlpha),
             _ => None,
         }
     }

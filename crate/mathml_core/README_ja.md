@@ -4,12 +4,37 @@
 
 この crate は、数式レンダリング入力のための MathML レイヤーです。ブラウザのような完全なMathML 実装ではありません。
 
+## この crate の役割
+
+このプロジェクト全体の最終目標は、`docx` と `pdf` の文書生成です。
+
+そのため、この crate はブラウザ互換の MathML 実装ではなく、Rust で完結する
+文書生成パイプライン向けの MathML レイヤーとして設計しています。
+
+- 数式の見た目や構造に効く MathML Core の要素だけを抽出・正規化する
+- ブラウザの DOM 実行環境や HTML/CSS プラットフォームを再現しない
+- 後段のレイアウト処理や文書出力に渡すための安定した中間表現を作る
+
 ## スコープ
 
 - ルートが `<math>...</math>` である MathML XML 文書のみをサポートします。
 - 生の文字列分岐に頼らず、型付き Rust enum によって MathML 構造を保持します。
 - MathML Core のうち、数式レンダリングに関係する機能に注力します。
+- その対象は主に `docx` と `pdf` 生成に必要な機能です。
 - `MathNode` へ変換する前段の安定した中間レイヤーを提供します。
+
+## この crate に本当に必要なこと
+
+このプロジェクトでは、MathML Core の完全準拠そのものは目標ではありません。
+必要なのは、文書生成に必要な数式構造と数式表示の情報を正しく扱うことです。
+
+そのため、この crate の目標は次のとおりです。
+
+- `MathML Core のうち、文書生成に必要な数式レンダリング機能をサポートする`
+
+そして、次は目標に含めません。
+
+- `ブラウザ相当の MathML Core 完全準拠`
 
 ## サポートチェックリスト
 
@@ -31,20 +56,19 @@
 - [x] 付録 C.1 数学イタリック変換 lookup を完全にサポートする
 - [x] サポート済みの解析・解釈挙動に対する統合テストを提供する
 - [x] `assets/` にバンドルした W3C スナップショットから build 時に付録 lookup table を生成する
+- [x] 文書レンダリングに関係する MathML Core プレゼンテーション要素の完全対応
+  （意図的に対象外としているインタラクティブ要素を除く）
+- [x] この文書生成パイプラインで使うレンダリング関連 MathML 属性の完全対応
+- [x] レンダリング関連属性値の型付き解釈
+- [x] `boolean` の解析
+- [x] `unsigned-integer` の解析
+- [x] `+U`、`-U`、`U` 形式の `scriptlevel` 値の解釈
+- [x] `display="block|inline"` の正規化と妥当性検証
+- [x] `mathvariant="normal"` の解釈
+- [x] `lspace`、`rspace`、`minsize`、`maxsize`、`width`、`height`、`depth` などに対する `<length-percentage>` の解析
+- [x] `linethickness` の解釈
+- [x] 表組み数式向けの `rowspan` と `columnspan` の型付き解析
 
-### まだサポートしていないもの
-
-- [ ] MathML Core プレゼンテーション要素の完全対応
-- [ ] レンダリング関連 MathML 属性の完全対応
-- [ ] レンダリング関連属性値の型付き解釈
-- [ ] `boolean` の解析
-- [ ] `unsigned-integer` の解析
-- [ ] `+U`、`-U`、`U` 形式の `scriptlevel` 値の解釈
-- [ ] `display="block|inline"` の正規化と妥当性検証
-- [ ] `mathvariant="normal"` の解釈
-- [ ] `lspace`、`rspace`、`minsize`、`maxsize`、`width`、`height`、`depth` などに対する `<length-percentage>` の解析
-- [ ] `linethickness` の解釈
-- [ ] 表組み数式向けの `rowspan` と `columnspan` の型付き解析
 ### この crate では意図的にサポートしないもの
 
 - [ ] ブラウザ風のレイアウトおよび描画アルゴリズム
@@ -54,6 +78,9 @@
 - [ ] ハイパーリンク挙動やその他の HTML 的なインタラクティブ機能
 - [ ] 一般的な HTML 文書解析
 - [ ] トップレベルの `<math>...</math>` MathML ルート外にある HTML/MathML 混在文書の処理
+
+これらは、このプロジェクトの主目的である `docx` / `pdf` 生成には直接必要ないため、
+この crate では意図的に対象外としています。
 
 ## バンドルしている W3C 文書
 

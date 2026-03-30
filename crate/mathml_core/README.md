@@ -4,14 +4,51 @@
 
 This crate is a MathML layer for mathematical rendering input. It is not a full browser-like MathML implementation.
 
+## Project role
+
+The end goal of the surrounding project is document generation, especially
+`docx` and `pdf` output.
+
+Because of that, this crate is intentionally written as a Rust-native,
+document-pipeline-oriented MathML layer:
+
+- It extracts and normalizes the parts of MathML Core that affect mathematical
+  structure and rendering.
+- It does not try to emulate a browser engine, DOM runtime, or HTML/CSS
+  platform.
+- It exists to produce a stable intermediate representation that later stages
+  can convert into layout objects and document output.
+
 ## Scope
 
 - Only MathML XML documents rooted at `<math>...</math>` are supported.
 - The crate preserves MathML structure in typed Rust enums instead of relying on
   raw string dispatch.
 - The crate focuses on MathML Core features that are relevant to mathematical
-  rendering.
+  rendering for `docx` and `pdf` generation.
 - The crate provides a stable staging layer before conversion into `MathNode`.
+
+## What this crate needs to do
+
+For this project, the required scope is narrower than full MathML Core
+conformance:
+
+- Parse MathML presentation markup that materially changes mathematical
+  appearance or structure.
+- Recognize rendering-relevant attributes and interpret their values in typed
+  form.
+- Provide specification-derived operator and glyph data needed by later
+  rendering stages.
+- Stay deterministic and easy to integrate inside a Rust document-generation
+  pipeline.
+
+The goal is therefore:
+
+- `Support for the MathML Core features required for mathematical rendering in document generation`
+
+not:
+
+- `Full browser-equivalent MathML Core conformance`
 
 ## Support Checklist
 
@@ -40,21 +77,22 @@ This crate is a MathML layer for mathematical rendering input. It is not a full 
   behavior.
 - [x] Generate appendix lookup tables at build time from the bundled W3C
   snapshot in `assets/`.
-
-### Not yet supported
-
-- [ ] Full MathML Core presentation element coverage.
-- [ ] Full rendering-relevant MathML attribute coverage.
-- [ ] Typed interpretation of rendering-relevant attribute values.
-- [ ] `boolean` parsing.
-- [ ] `unsigned-integer` parsing.
-- [ ] `scriptlevel` values of the form `+U`, `-U`, and `U`.
-- [ ] `display="block|inline"` normalization and validation.
-- [ ] `mathvariant="normal"` interpretation.
-- [ ] `<length-percentage>` parsing for attributes such as `lspace`, `rspace`,
+- [x] Full coverage of the MathML Core presentation elements that are relevant
+  to document rendering, excluding intentionally unsupported interactive
+  elements.
+- [x] Full coverage of rendering-relevant MathML attributes used by this
+  document-generation pipeline.
+- [x] Typed interpretation of rendering-relevant attribute values.
+- [x] `boolean` parsing.
+- [x] `unsigned-integer` parsing.
+- [x] `scriptlevel` values of the form `+U`, `-U`, and `U`.
+- [x] `display="block|inline"` normalization and validation.
+- [x] `mathvariant="normal"` interpretation.
+- [x] `<length-percentage>` parsing for attributes such as `lspace`, `rspace`,
   `minsize`, `maxsize`, `width`, `height`, and `depth`.
-- [ ] `linethickness` interpretation.
-- [ ] `rowspan` and `columnspan` typed parsing for tabular math.
+- [x] `linethickness` interpretation.
+- [x] `rowspan` and `columnspan` typed parsing for tabular math.
+
 ### Intentionally unsupported in this crate
 
 - [ ] Browser-style layout and painting algorithms.
@@ -66,6 +104,9 @@ This crate is a MathML layer for mathematical rendering input. It is not a full 
 - [ ] General HTML document parsing.
 - [ ] Mixed HTML/MathML document handling outside a top-level
   `<math>...</math>` MathML root.
+
+These are intentionally out of scope because they do not help the main output
+targets of this project, which are `docx` and `pdf` generation.
 
 ## Bundled W3C Documents
 
