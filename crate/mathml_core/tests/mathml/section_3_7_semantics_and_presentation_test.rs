@@ -20,14 +20,19 @@ fn supports_semantics_and_annotation_elements() {
         panic!("expected annotation element");
     };
     assert_eq!(annotation.name, MathMlElementName::Annotation);
-    assert_eq!(annotation.attributes[0].name, MathMlAttributeName::Encoding);
+    assert!(
+        annotation
+            .attribute(&MathMlAttributeName::Encoding)
+            .is_some()
+    );
 
     let XmlNode::Element(annotation_xml) = &semantics.children[2] else {
         panic!("expected annotation-xml element");
     };
     assert_eq!(annotation_xml.name, MathMlElementName::AnnotationXml);
-    assert_eq!(
-        annotation_xml.attributes[0].name,
-        MathMlAttributeName::Encoding
+    assert!(
+        annotation_xml
+            .attribute(&MathMlAttributeName::Encoding)
+            .is_some()
     );
 }

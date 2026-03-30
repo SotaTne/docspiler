@@ -16,7 +16,20 @@ pub struct XmlElement {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct XmlAttribute {
     pub name: MathMlAttributeName,
-    pub value: String,
+    pub(crate) value: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum ParsedMathMlAttributeValue {
+    Boolean(MathMlBoolean),
+    UnsignedInteger(UnsignedInteger),
+    ScriptLevel(ScriptLevel),
+    Display(MathDisplay),
+    MathVariant(MathVariantValue),
+    LengthPercentage(LengthPercentage),
+    LineThickness(LineThickness),
+    RowSpan(RowSpan),
+    ColumnSpan(ColumnSpan),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -432,6 +445,20 @@ pub enum LengthPercentage {
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct LineThickness(pub LengthPercentage);
+
+impl XmlElement {
+    pub fn attribute(&self, name: &MathMlAttributeName) -> Option<&XmlAttribute> {
+        self.attributes
+            .iter()
+            .find(|attribute| &attribute.name == name)
+    }
+}
+
+impl XmlAttribute {
+    pub(crate) fn new(name: MathMlAttributeName, value: String) -> Self {
+        Self { name, value }
+    }
+}
 
 #[derive(Debug)]
 pub enum ParseXmlError {

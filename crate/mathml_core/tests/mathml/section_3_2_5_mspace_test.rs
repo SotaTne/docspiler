@@ -1,4 +1,5 @@
 use crate::support::{child_elements, parse};
+use mathml_core::mathml_model::{LengthPercentage, MathLength, MathLengthUnit};
 use mathml_core::mathml_xml::{MathMlAttributeName, MathMlElementName};
 
 // Section: 3.2.5 Space <mspace>
@@ -14,7 +15,31 @@ fn supports_mspace_element() {
     let mspace = child_elements(&document)[0];
 
     assert_eq!(mspace.name, MathMlElementName::Mspace);
-    assert_eq!(mspace.attributes[0].name, MathMlAttributeName::Width);
-    assert_eq!(mspace.attributes[1].name, MathMlAttributeName::Height);
-    assert_eq!(mspace.attributes[2].name, MathMlAttributeName::Depth);
+    assert_eq!(
+        mspace
+            .attribute(&MathMlAttributeName::Width)
+            .and_then(|attr| attr.as_length_percentage()),
+        Some(LengthPercentage::Length(MathLength {
+            value: 1.0,
+            unit: MathLengthUnit::Em,
+        }))
+    );
+    assert_eq!(
+        mspace
+            .attribute(&MathMlAttributeName::Height)
+            .and_then(|attr| attr.as_length_percentage()),
+        Some(LengthPercentage::Length(MathLength {
+            value: 2.0,
+            unit: MathLengthUnit::Ex,
+        }))
+    );
+    assert_eq!(
+        mspace
+            .attribute(&MathMlAttributeName::Depth)
+            .and_then(|attr| attr.as_length_percentage()),
+        Some(LengthPercentage::Length(MathLength {
+            value: 0.5,
+            unit: MathLengthUnit::Ex,
+        }))
+    );
 }

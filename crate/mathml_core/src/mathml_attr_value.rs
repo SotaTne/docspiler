@@ -1,6 +1,7 @@
 pub use crate::mathml_model::{
     ColumnSpan, LengthPercentage, LineThickness, MathDisplay, MathLength, MathLengthUnit,
-    MathMlBoolean, MathVariantValue, RowSpan, ScriptLevel, UnsignedInteger,
+    MathMlAttributeName, MathMlBoolean, MathVariantValue, ParsedMathMlAttributeValue, RowSpan,
+    ScriptLevel, UnsignedInteger, XmlAttribute,
 };
 
 pub fn parse_boolean(raw: &str) -> Option<MathMlBoolean> {
@@ -91,6 +92,93 @@ pub fn parse_linethickness(raw: &str) -> Option<LineThickness> {
             LineThickness(LengthPercentage::Percentage(percent.max(0.0)))
         }
     })
+}
+
+impl XmlAttribute {
+    pub fn interpreted_value(&self) -> Option<ParsedMathMlAttributeValue> {
+        match self.name {
+            MathMlAttributeName::DisplayStyle
+            | MathMlAttributeName::Fence
+            | MathMlAttributeName::Separator
+            | MathMlAttributeName::Stretchy
+            | MathMlAttributeName::Symmetric
+            | MathMlAttributeName::LargeOp
+            | MathMlAttributeName::MovableLimits
+            | MathMlAttributeName::Accent
+            | MathMlAttributeName::AccentUnder
+            | MathMlAttributeName::Bevelled
+            | MathMlAttributeName::EqualRows
+            | MathMlAttributeName::EqualColumns => {
+                self.as_boolean().map(ParsedMathMlAttributeValue::Boolean)
+            }
+            MathMlAttributeName::ScriptLevel => self
+                .as_scriptlevel()
+                .map(ParsedMathMlAttributeValue::ScriptLevel),
+            MathMlAttributeName::Display => {
+                self.as_display().map(ParsedMathMlAttributeValue::Display)
+            }
+            MathMlAttributeName::MathVariant => self
+                .as_mathvariant()
+                .map(ParsedMathMlAttributeValue::MathVariant),
+            MathMlAttributeName::LSpace
+            | MathMlAttributeName::RSpace
+            | MathMlAttributeName::MinSize
+            | MathMlAttributeName::MaxSize
+            | MathMlAttributeName::Width
+            | MathMlAttributeName::Height
+            | MathMlAttributeName::Depth
+            | MathMlAttributeName::MathSize
+            | MathMlAttributeName::MinLabelSpacing => self
+                .as_length_percentage()
+                .map(ParsedMathMlAttributeValue::LengthPercentage),
+            MathMlAttributeName::LineThickness => self
+                .as_linethickness()
+                .map(ParsedMathMlAttributeValue::LineThickness),
+            MathMlAttributeName::RowSpan => {
+                self.as_rowspan().map(ParsedMathMlAttributeValue::RowSpan)
+            }
+            MathMlAttributeName::ColumnSpan => self
+                .as_columnspan()
+                .map(ParsedMathMlAttributeValue::ColumnSpan),
+            _ => None,
+        }
+    }
+
+    pub fn as_boolean(&self) -> Option<MathMlBoolean> {
+        parse_boolean(&self.value)
+    }
+
+    pub fn as_unsigned_integer(&self) -> Option<UnsignedInteger> {
+        parse_unsigned_integer(&self.value)
+    }
+
+    pub fn as_scriptlevel(&self) -> Option<ScriptLevel> {
+        parse_scriptlevel(&self.value)
+    }
+
+    pub fn as_display(&self) -> Option<MathDisplay> {
+        parse_math_display(&self.value)
+    }
+
+    pub fn as_mathvariant(&self) -> Option<MathVariantValue> {
+        Some(interpret_mathvariant(&self.value))
+    }
+
+    pub fn as_length_percentage(&self) -> Option<LengthPercentage> {
+        parse_length_percentage(&self.value)
+    }
+
+    pub fn as_linethickness(&self) -> Option<LineThickness> {
+        parse_linethickness(&self.value)
+    }
+
+    pub fn as_rowspan(&self) -> Option<RowSpan> {
+        parse_rowspan(&self.value)
+    }
+
+    pub fn as_columnspan(&self) -> Option<ColumnSpan> {
+        parse_columnspan(&self.value)
+    }
 }
 
 fn parse_length_with_unit(raw: &str) -> Option<(f32, MathLengthUnit)> {

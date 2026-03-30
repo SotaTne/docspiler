@@ -1,4 +1,5 @@
 use crate::support::{child_elements, parse};
+use mathml_core::mathml_model::{LengthPercentage, MathLength, MathLengthUnit};
 use mathml_core::mathml_xml::{MathMlAttributeName, MathMlElementName};
 
 // Section: 3.3.6 Adjust Space Around Content <mpadded>
@@ -16,7 +17,31 @@ fn supports_mpadded_element() {
     let mpadded = child_elements(&document)[0];
 
     assert_eq!(mpadded.name, MathMlElementName::Mpadded);
-    assert_eq!(mpadded.attributes[0].name, MathMlAttributeName::Width);
-    assert_eq!(mpadded.attributes[1].name, MathMlAttributeName::Height);
-    assert_eq!(mpadded.attributes[2].name, MathMlAttributeName::Depth);
+    assert_eq!(
+        mpadded
+            .attribute(&MathMlAttributeName::Width)
+            .and_then(|attr| attr.as_length_percentage()),
+        Some(LengthPercentage::Length(MathLength {
+            value: 1.0,
+            unit: MathLengthUnit::Em,
+        }))
+    );
+    assert_eq!(
+        mpadded
+            .attribute(&MathMlAttributeName::Height)
+            .and_then(|attr| attr.as_length_percentage()),
+        Some(LengthPercentage::Length(MathLength {
+            value: 1.0,
+            unit: MathLengthUnit::Ex,
+        }))
+    );
+    assert_eq!(
+        mpadded
+            .attribute(&MathMlAttributeName::Depth)
+            .and_then(|attr| attr.as_length_percentage()),
+        Some(LengthPercentage::Length(MathLength {
+            value: 1.0,
+            unit: MathLengthUnit::Ex,
+        }))
+    );
 }

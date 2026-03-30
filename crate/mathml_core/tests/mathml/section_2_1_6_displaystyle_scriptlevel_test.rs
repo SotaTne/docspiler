@@ -1,5 +1,5 @@
 use crate::support::parse;
-use mathml_core::mathml_xml::MathMlAttributeName;
+use mathml_core::mathml_model::{MathMlAttributeName, MathMlBoolean, ScriptLevel};
 
 // Section: 2.1.6 The `displaystyle` and `scriptlevel` attributes
 // Spec: https://www.w3.org/TR/mathml-core/#the-displaystyle-and-scriptlevel-attributes
@@ -13,9 +13,13 @@ fn supports_displaystyle_and_scriptlevel_attributes() {
         parse(r#"<math><mstyle displaystyle="true" scriptlevel="1"><mi>x</mi></mstyle></math>"#);
     let style = crate::support::child_elements(&document)[0];
 
-    assert_eq!(style.attributes.len(), 2);
-    assert_eq!(style.attributes[0].name, MathMlAttributeName::DisplayStyle);
-    assert_eq!(style.attributes[0].value, "true");
-    assert_eq!(style.attributes[1].name, MathMlAttributeName::ScriptLevel);
-    assert_eq!(style.attributes[1].value, "1");
+    let displaystyle = style
+        .attribute(&MathMlAttributeName::DisplayStyle)
+        .expect("displaystyle attribute");
+    let scriptlevel = style
+        .attribute(&MathMlAttributeName::ScriptLevel)
+        .expect("scriptlevel attribute");
+
+    assert_eq!(displaystyle.as_boolean(), Some(MathMlBoolean::True));
+    assert_eq!(scriptlevel.as_scriptlevel(), Some(ScriptLevel::Absolute(1)));
 }

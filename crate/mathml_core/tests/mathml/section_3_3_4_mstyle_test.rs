@@ -14,5 +14,5 @@ fn supports_mstyle_element() {
     let style = child_elements(&document)[0];
 
     assert_eq!(style.name, MathMlElementName::Mstyle);
-    assert_eq!(style.attributes[0].name, MathMlAttributeName::MathColor);
+    assert!(style.attribute(&MathMlAttributeName::MathColor).is_some());
 }

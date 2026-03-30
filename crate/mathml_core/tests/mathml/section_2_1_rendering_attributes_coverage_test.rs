@@ -31,11 +31,14 @@ fn supports_full_rendering_relevant_mathml_attribute_coverage() {
     );
 
     let root = &document.root;
-    assert_eq!(root.attributes[0].name, MathMlAttributeName::Display);
-    assert_eq!(root.attributes[1].name, MathMlAttributeName::MathColor);
-    assert_eq!(root.attributes[2].name, MathMlAttributeName::MathBackground);
-    assert_eq!(root.attributes[3].name, MathMlAttributeName::MathSize);
-    assert_eq!(root.attributes[4].name, MathMlAttributeName::Dir);
+    assert!(root.attribute(&MathMlAttributeName::Display).is_some());
+    assert!(root.attribute(&MathMlAttributeName::MathColor).is_some());
+    assert!(
+        root.attribute(&MathMlAttributeName::MathBackground)
+            .is_some()
+    );
+    assert!(root.attribute(&MathMlAttributeName::MathSize).is_some());
+    assert!(root.attribute(&MathMlAttributeName::Dir).is_some());
 
     let children = child_elements(&document);
     let mstyle = children[0];
@@ -50,55 +53,93 @@ fn supports_full_rendering_relevant_mathml_attribute_coverage() {
     let mtr = element_children(mtable)[0];
     let mtd = element_children(mtr)[0];
 
-    assert_eq!(mstyle.attributes[0].name, MathMlAttributeName::DisplayStyle);
-    assert_eq!(mstyle.attributes[1].name, MathMlAttributeName::ScriptLevel);
-    assert_eq!(mi.attributes[0].name, MathMlAttributeName::MathVariant);
-
-    assert_eq!(mo.attributes[0].name, MathMlAttributeName::Form);
-    assert_eq!(mo.attributes[1].name, MathMlAttributeName::Fence);
-    assert_eq!(mo.attributes[2].name, MathMlAttributeName::Separator);
-    assert_eq!(mo.attributes[3].name, MathMlAttributeName::LSpace);
-    assert_eq!(mo.attributes[4].name, MathMlAttributeName::RSpace);
-    assert_eq!(mo.attributes[5].name, MathMlAttributeName::Stretchy);
-    assert_eq!(mo.attributes[6].name, MathMlAttributeName::Symmetric);
-    assert_eq!(mo.attributes[7].name, MathMlAttributeName::MaxSize);
-    assert_eq!(mo.attributes[8].name, MathMlAttributeName::MinSize);
-    assert_eq!(mo.attributes[9].name, MathMlAttributeName::LargeOp);
-    assert_eq!(mo.attributes[10].name, MathMlAttributeName::MovableLimits);
-
-    assert_eq!(mfrac.attributes[0].name, MathMlAttributeName::LineThickness);
-    assert_eq!(mfrac.attributes[1].name, MathMlAttributeName::NumAlign);
-    assert_eq!(mfrac.attributes[2].name, MathMlAttributeName::DenomAlign);
-    assert_eq!(mfrac.attributes[3].name, MathMlAttributeName::Bevelled);
-
-    assert_eq!(mspace.attributes[0].name, MathMlAttributeName::Width);
-    assert_eq!(mspace.attributes[1].name, MathMlAttributeName::Height);
-    assert_eq!(mspace.attributes[2].name, MathMlAttributeName::Depth);
-
-    assert_eq!(mover.attributes[0].name, MathMlAttributeName::Accent);
-    assert_eq!(munder.attributes[0].name, MathMlAttributeName::AccentUnder);
-
-    assert_eq!(mtable.attributes[0].name, MathMlAttributeName::RowAlign);
-    assert_eq!(mtable.attributes[1].name, MathMlAttributeName::ColumnAlign);
-    assert_eq!(
-        mtable.attributes[2].name,
-        MathMlAttributeName::ColumnSpacing
+    assert!(
+        mstyle
+            .attribute(&MathMlAttributeName::DisplayStyle)
+            .is_some()
     );
-    assert_eq!(mtable.attributes[3].name, MathMlAttributeName::RowSpacing);
-    assert_eq!(mtable.attributes[4].name, MathMlAttributeName::ColumnLines);
-    assert_eq!(mtable.attributes[5].name, MathMlAttributeName::RowLines);
-    assert_eq!(mtable.attributes[6].name, MathMlAttributeName::Frame);
-    assert_eq!(mtable.attributes[7].name, MathMlAttributeName::FrameSpacing);
-    assert_eq!(mtable.attributes[8].name, MathMlAttributeName::EqualRows);
-    assert_eq!(mtable.attributes[9].name, MathMlAttributeName::EqualColumns);
-    assert_eq!(mtable.attributes[10].name, MathMlAttributeName::Side);
-    assert_eq!(
-        mtable.attributes[11].name,
-        MathMlAttributeName::MinLabelSpacing
+    assert!(
+        mstyle
+            .attribute(&MathMlAttributeName::ScriptLevel)
+            .is_some()
+    );
+    assert!(mi.attribute(&MathMlAttributeName::MathVariant).is_some());
+
+    assert!(mo.attribute(&MathMlAttributeName::Form).is_some());
+    assert!(mo.attribute(&MathMlAttributeName::Fence).is_some());
+    assert!(mo.attribute(&MathMlAttributeName::Separator).is_some());
+    assert!(mo.attribute(&MathMlAttributeName::LSpace).is_some());
+    assert!(mo.attribute(&MathMlAttributeName::RSpace).is_some());
+    assert!(mo.attribute(&MathMlAttributeName::Stretchy).is_some());
+    assert!(mo.attribute(&MathMlAttributeName::Symmetric).is_some());
+    assert!(mo.attribute(&MathMlAttributeName::MaxSize).is_some());
+    assert!(mo.attribute(&MathMlAttributeName::MinSize).is_some());
+    assert!(mo.attribute(&MathMlAttributeName::LargeOp).is_some());
+    assert!(mo.attribute(&MathMlAttributeName::MovableLimits).is_some());
+
+    assert!(
+        mfrac
+            .attribute(&MathMlAttributeName::LineThickness)
+            .is_some()
+    );
+    assert!(mfrac.attribute(&MathMlAttributeName::NumAlign).is_some());
+    assert!(mfrac.attribute(&MathMlAttributeName::DenomAlign).is_some());
+    assert!(mfrac.attribute(&MathMlAttributeName::Bevelled).is_some());
+
+    assert!(mspace.attribute(&MathMlAttributeName::Width).is_some());
+    assert!(mspace.attribute(&MathMlAttributeName::Height).is_some());
+    assert!(mspace.attribute(&MathMlAttributeName::Depth).is_some());
+
+    assert!(mover.attribute(&MathMlAttributeName::Accent).is_some());
+    assert!(
+        munder
+            .attribute(&MathMlAttributeName::AccentUnder)
+            .is_some()
     );
 
-    assert_eq!(mtd.attributes[0].name, MathMlAttributeName::RowSpan);
-    assert_eq!(mtd.attributes[1].name, MathMlAttributeName::ColumnSpan);
+    assert!(mtable.attribute(&MathMlAttributeName::RowAlign).is_some());
+    assert!(
+        mtable
+            .attribute(&MathMlAttributeName::ColumnAlign)
+            .is_some()
+    );
+    assert!(
+        mtable
+            .attribute(&MathMlAttributeName::ColumnSpacing)
+            .is_some()
+    );
+    assert!(mtable.attribute(&MathMlAttributeName::RowSpacing).is_some());
+    assert!(
+        mtable
+            .attribute(&MathMlAttributeName::ColumnLines)
+            .is_some()
+    );
+    assert!(mtable.attribute(&MathMlAttributeName::RowLines).is_some());
+    assert!(mtable.attribute(&MathMlAttributeName::Frame).is_some());
+    assert!(
+        mtable
+            .attribute(&MathMlAttributeName::FrameSpacing)
+            .is_some()
+    );
+    assert!(mtable.attribute(&MathMlAttributeName::EqualRows).is_some());
+    assert!(
+        mtable
+            .attribute(&MathMlAttributeName::EqualColumns)
+            .is_some()
+    );
+    assert!(mtable.attribute(&MathMlAttributeName::Side).is_some());
+    assert!(
+        mtable
+            .attribute(&MathMlAttributeName::MinLabelSpacing)
+            .is_some()
+    );
 
-    assert_eq!(annotation.attributes[0].name, MathMlAttributeName::Encoding);
+    assert!(mtd.attribute(&MathMlAttributeName::RowSpan).is_some());
+    assert!(mtd.attribute(&MathMlAttributeName::ColumnSpan).is_some());
+
+    assert!(
+        annotation
+            .attribute(&MathMlAttributeName::Encoding)
+            .is_some()
+    );
 }
