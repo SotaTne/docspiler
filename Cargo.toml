@@ -3,10 +3,16 @@
 resolver = "3"
 
 members = [
-    "crate/docspiler_ast",
-    "crate/docspiler_ir",
-    "crate/funcs",
-    "crate/pdf_render",
+    "crate/core_ast",
+    # "crate/docspiler_ast",
+    # "crate/docspiler_ir",
+    "crate/docx_gen",
+    # "crate/funcs",
+    "crate/layout_galley",
+    "crate/layout_physical",
+    "crate/mathml_core",
+    "crate/pdf_gen",
+    # "crate/pdf_render",
 ]
 
 [workspace.dependencies]

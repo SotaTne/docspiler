@@ -1,0 +1,7 @@
+[package]
+name = "docx_gen"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+docx-rs = { git = "https://github.com/SotaTne/docx-rs", branch = "feat/omath" }
